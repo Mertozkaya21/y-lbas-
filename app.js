@@ -1,8 +1,5 @@
 // app.js
 
-// Global değişken: data.js içinde tanımlı
-// window.SECRET_SANTA_USERS
-
 (function () {
   const loginCard = document.getElementById("login-card");
   const mainCard = document.getElementById("main-card");
@@ -17,7 +14,7 @@
   const logoutBtn = document.getElementById("logout-btn");
 
   // =============================
-  // KONFETİ KODU
+  // KONFETİ KODU (istersen aynen bırak)
   // =============================
   function createConfettiPiece() {
     const colors = ["#ff595e", "#ffca3a", "#8ac926", "#1982c4", "#6a4c93", "#ffffff"];
@@ -70,14 +67,6 @@
     sessionStorage.removeItem("secret_santa_current_user");
   }
 
-  // Kullanıcıyı arama
-  function findUser(username, password) {
-    if (!window.SECRET_SANTA_USERS) return null;
-    return window.SECRET_SANTA_USERS.find(
-      (u) => u.username === username && u.password === password
-    );
-  }
-
   // Login olmuşsa main ekrana geç
   function showMainForUser(user) {
     loginCard.style.display = "none";
@@ -88,7 +77,6 @@
     receiverHints.textContent =
       user.receiver?.hints || "Bu kişi için ipucu girilmemiş.";
 
-    // Kullanıcının hediye alacağı kişiyi gördüğü anda konfeti
     launchConfetti();
   }
 
@@ -109,23 +97,45 @@
     }
   });
 
+  // BACKEND URL (lokalde çalışırken)
+  const BACKEND_URL = "http://localhost:3000";
+
+  async function loginRequest(username, password) {
+    const res = await fetch(`${BACKEND_URL}/api/login`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ username, password })
+    });
+
+    if (!res.ok) {
+      // 401 vs -> hatalı giriş
+      throw new Error("Invalid credentials");
+    }
+
+    const data = await res.json();
+    return data; // { username, displayName, receiver }
+  }
+
   // Login form submit
-  loginForm.addEventListener("submit", (e) => {
+  loginForm.addEventListener("submit", async (e) => {
     e.preventDefault();
 
     const username = usernameInput.value.trim();
     const password = passwordInput.value;
 
-    const user = findUser(username, password);
-
-    if (!user) {
-      loginError.style.display = "block";
-      return;
-    }
-
     loginError.style.display = "none";
-    setCurrentUser(user);
-    showMainForUser(user); // burada launchConfetti zaten çağrılıyor
+
+    try {
+      const user = await loginRequest(username, password);
+
+      setCurrentUser(user);
+      showMainForUser(user);
+    } catch (err) {
+      console.error(err);
+      loginError.style.display = "block";
+    }
   });
 
   // Logout
