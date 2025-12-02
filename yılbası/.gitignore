@@ -1,0 +1,16 @@
+deneme/data.js
+# Environment files
+.env
+
+# Build output
+dist/
+build/
+
+# System files
+.DS_Store
+
+# Editor / IDE
+.vscode/
+
+# Logs
+*.log

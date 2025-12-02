@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Yılbaşı Hediye Eşleştirme</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- İstersen kaldırabilirsin, font sadece görsel için -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="overlay-gradient"></div>
+
+  <div id="snow-layer">
+    <div id="snow-pile" aria-hidden="true"></div>
+  </div>
+
+  <div class="app-outer">
+    <div class="corner-tree corner-tree-left">
+      <div class="tree">
+        <div class="tree-star"></div>
+        <div class="tree-layer layer-1"></div>
+        <div class="tree-layer layer-2"></div>
+        <div class="tree-layer layer-3"></div>
+        <div class="tree-trunk"></div>
+        <div class="tree-lights">
+          <span></span><span></span><span></span>
+          <span></span><span></span><span></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="corner-tree corner-tree-right">
+      <div class="tree">
+        <div class="tree-star"></div>
+        <div class="tree-layer layer-1"></div>
+        <div class="tree-layer layer-2"></div>
+        <div class="tree-layer layer-3"></div>
+        <div class="tree-trunk"></div>
+        <div class="tree-lights">
+          <span></span><span></span><span></span>
+          <span></span><span></span><span></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Eski app-container + kartlar aynı kalıyor -->
+    <div class="app-container">
+      <!-- Login Card -->
+      <div id="login-card" class="card">
+        <h1 class="title">🎄 Hediye Eşleştirme</h1>
+        <p class="subtitle">Devam etmek için giriş yap.</p>
+
+        <form id="login-form" class="form">
+          <label class="label">
+            Kullanıcı Adı
+            <input type="text" id="username" class="input" required>
+          </label>
+
+          <label class="label">
+            Şifre
+            <input type="password" id="password" class="input" required>
+          </label>
+
+          <button type="submit" class="button">Giriş Yap</button>
+
+          <p id="login-error" class="error-text" style="display:none;">
+            Kullanıcı adı veya şifre hatalı.
+          </p>
+        </form>
+      </div>
+
+      <!-- Main Card (Sadece login sonrası görünecek) -->
+      <div id="main-card" class="card" style="display:none;">
+        <div class="header-row">
+          <div>
+            <h1 class="title" id="welcome-title"></h1>
+            <p class="subtitle">Bu yıl kime hediye alacağını aşağıda görebilirsin.</p>
+          </div>
+          <button id="logout-btn" class="button button-outline">Çıkış Yap</button>
+        </div>
+
+        <div class="receiver-card">
+          <h2 class="receiver-name" id="receiver-name"></h2>
+          <p class="receiver-label">Bu yıl hediye alacağın kişi</p>
+          <hr class="divider">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+
+  <script>
+    (function createSnow() {
+      const flakeCount = 70;
+      const snowLayer = document.getElementById('snow-layer') || document.body;
+      const snowPile = document.getElementById('snow-pile');
+
+      let pileHeight = 0;
+      const pileMax = 140;
+
+      function accumulateSnow(amount) {
+        pileHeight = Math.min(pileMax, pileHeight + amount);
+        if (snowPile) snowPile.style.height = pileHeight + 'px';
+    }
+
+      for (let i = 0; i < flakeCount; i++) {
+        const flake = document.createElement("div");
+        flake.className = "snowflake";
+        flake.textContent = "•";
+
+        const size = 6 + Math.random() * 8;
+        flake.style.fontSize = size + "px";
+        flake.style.left = Math.random() * 100 + "%";
+
+        const duration = 6 + Math.random() * 8;
+        const delay = Math.random() * 4;
+        flake.style.animationDuration = duration + "s";
+        flake.style.animationDelay = delay + "s";
+        flake.style.animationIterationCount = '1';
+
+        flake.addEventListener('animationend', () => {
+          accumulateSnow(1 + Math.random() * 2);
+
+          if (snowPile && Math.random() < 0.25) {
+            const pellet = document.createElement('div');
+            pellet.className = 'snow-pellet';
+            const left = Math.random() * 100;
+            pellet.style.left = `calc(${left}% - 3px)`;
+            const bottom = Math.random() * Math.min(pileHeight, 40);
+            pellet.style.bottom = bottom + 'px';
+            snowPile.appendChild(pellet);
+
+            setTimeout(() => pellet.remove(), 20000 + Math.random() * 20000);
+          }
+
+          flake.remove();
+        });
+
+        snowLayer.appendChild(flake);
+      }
+
+      function createDogs() {
+        const dogLayer = document.getElementById('dog-layer');
+        if (!dogLayer) return;
+
+        const emojis = ['🐶','🐕','🦮'];
+        for (let i = 0; i < 3; i++) {
+          const dog = document.createElement('div');
+          dog.className = 'dog b' + (i + 1);
+          dog.textContent = emojis[i % emojis.length];
+
+          // stagger starting horizontal position
+          dog.style.left = (i * 20) + '%';
+          dogLayer.appendChild(dog);
+        }
+      }
+
+      setTimeout(createDogs, 250);
+    })();
+  </script>
+</body>
+</html>
+
+
